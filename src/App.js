@@ -1,11 +1,14 @@
-import React, { useState, useEffect, useRef } from 'react';
-import './App.css';
-import Footer from './components/Footer';
-import Spinner from './components/Spinner';
+import React, { useState, useEffect, useRef } from "react";
+import "./App.css";
+import Footer from "./components/Footer";
+import Spinner from "./components/Spinner";
 
-const LazyHero = React.lazy(() => import('./components/Hero'));
-const LazyDivider = React.lazy(() => import('./components/Divider'));
-const LazyHeader = React.lazy(() => import('./components/Header'));
+const LazyHeader = React.lazy(() => import("./components/Header"));
+const LazyHero = React.lazy(() => import("./components/Hero"));
+const LazyNoticias = React.lazy(() => import("./components/GridNoticias"));
+const LazyTitulos = React.lazy(() => import("./components/Titulos"));
+const LazyDivider = React.lazy(() => import("./components/Divider"));
+const LazyWidget = React.lazy(() => import("./components/Widget"));
 
 const LazyComponent = ({ children }) => {
   const [isVisible, setIsVisible] = useState(false);
@@ -21,7 +24,7 @@ const LazyComponent = ({ children }) => {
       },
       {
         root: null, // Use the viewport as the root
-        rootMargin: '0px',
+        rootMargin: "0px",
         threshold: 0.2,
       }
     );
@@ -52,7 +55,7 @@ function App() {
   }, []);
 
   return (
-    <div className={`App ${isLoading ? 'loading' : ''}`}>
+    <div className={`App ${isLoading ? "loading" : ""}`}>
       {isLoading ? (
         <div className="loading-overlay">
           <Spinner />
@@ -69,9 +72,19 @@ function App() {
               <LazyHero />
             </React.Suspense>
           </LazyComponent>
-          <LazyComponent>
+          {/* <LazyComponent>
             <React.Suspense fallback={<Spinner />}>
               <LazyDivider />
+            </React.Suspense>
+          </LazyComponent> */}
+          <LazyComponent>
+            <React.Suspense fallback={<Spinner />}>
+              <LazyNoticias />
+            </React.Suspense>
+          </LazyComponent>
+          <LazyComponent>
+            <React.Suspense fallback={<Spinner />}>
+              <LazyWidget />
             </React.Suspense>
           </LazyComponent>
           <Footer />
