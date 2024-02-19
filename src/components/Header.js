@@ -30,7 +30,7 @@ const Header = () => {
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
-              className="h-6 w-6 text-white"
+              className="h-6 w-6 text-black"
             >
               <path
                 strokeLinecap="round"
