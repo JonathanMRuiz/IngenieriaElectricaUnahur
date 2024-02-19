@@ -1,28 +1,6 @@
 import React from "react";
 import Noticia from "./Noticia";
-
-const noticiasData = [
-  {
-    title: "Título de la Noticia 1",
-    image: "https://dummyimage.com/720x600",
-    description: "Descripción de la Noticia 1",
-    category: "Política",
-  },
-  {
-    title: "Título de la Noticia 2",
-    image: "https://dummyimage.com/720x600",
-    description: "Descripción de la Noticia 2",
-    category: "Ciencia",
-  },
-  {
-    title: "Título de la Noticia 3",
-    image: "https://dummyimage.com/720x600",
-    description: "Descripción de la Noticia 3",
-    category: "Tecnología",
-  },
-  // Agrega más noticias según sea necesario
-];
-
+import noticiasData from "../noticiasData";
 const GridNoticias = () => {
   return (
     <section className="text-gray-600 body-font">
@@ -31,10 +9,19 @@ const GridNoticias = () => {
           {noticiasData.map((noticia, index) => (
             <Noticia
               key={index}
+              id={noticia.id}
               title={noticia.title}
-              image={noticia.image}
-              description={noticia.description}
+              image_01={noticia.image_01}
+              image_02={noticia.image_02}
+              image_03={noticia.image_03}
+              image_04={noticia.image_04}
+              text_01={noticia.text_01}
+              text_02={noticia.text_02}
+              text_03={noticia.text_03}
+              text_04={noticia.text_04}
               category={noticia.category}
+              creator={noticia.creator}
+              created_at={noticia.created_at}
             />
           ))}
         </div>

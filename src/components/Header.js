@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+import { Link } from "react-router-dom"; // Importa Link desde react-router-dom
+import Logo from "../source/logo.png";
 
 const Header = () => {
   const [isMobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -12,13 +14,15 @@ const Header = () => {
   };
 
   return (
-    <div className="flex justify-center bg-green-500 text-white">
+    <div className="flex justify-center bg-white text-black">
       <nav className="self-center w-full max-w-7xl">
         <div className="flex md:flex-row flex-col justify-between items-center md:items-start">
-          <h1 className="py-4 text-2xl font-sans font-bold px-4 md:px-10">
-            Brand
-          </h1>
-
+          <div className="flex items-center">
+            <img src={Logo} alt="Logo" className="h-12 md:h-16" />
+            <h1 className="py-4 text-sm font-sans font-bold md:text-2xl ml-2 uppercase">
+              Ingeniería Eléctrica Unahur
+            </h1>
+          </div>
           {/* Mobile Menu Icon */}
           <div className="md:hidden cursor-pointer" onClick={toggleMobileMenu}>
             <svg
@@ -43,22 +47,18 @@ const Header = () => {
               isMobileMenuOpen ? "flex flex-col" : "hidden"
             } md:flex md:flex-row justify-center md:my-4 items-center text-sm md:text-[18px] font-bold md:px-10`}
           >
-            <div
-              className="bg-green-500 w-full md:w-auto"
-              onClick={closeMobileMenu}
-            >
+            <div className=" w-full md:w-auto" onClick={closeMobileMenu}>
               <ul className="flex flex-col md:flex-row justify-center items-center">
-                <li className="hover:underline underline-offset-4 decoration-2 decoration-white py-2 rounded-lg px-2 md:px-5">
-                  <a href="#">Inicio</a>
+                {/* Reemplaza los enlaces <a> con <Link> */}
+                <li className="hover:underline underline-offset-4 decoration-2 decoration-green-600 py-2 rounded-lg px-2 md:px-5">
+                  <Link to="/">Inicio</Link>
                 </li>
-                <li className="hover:underline underline-offset-4 decoration-2 decoration-white py-2 rounded-lg px-2 md:px-5">
-                  <a href="#">Taller de laboratorio</a>
-                </li>
-                <li className="hover:underline underline-offset-4 decoration-2 decoration-white py-2 rounded-lg px-2 md:px-5">
-                  <a href="#">Services</a>
-                </li>
-                <li className="hover:underline underline-offset-4 decoration-2 decoration-white py-2 rounded-lg px-2 md:px-5">
-                  <a href="#">Contacto</a>
+                {/* <li className="hover:underline underline-offset-4 decoration-2 decoration-green-600 py-2 rounded-lg px-2 md:px-5">
+                  <Link to="/taller">Taller de laboratorio</Link>
+                </li> */}
+
+                <li className="hover:underline underline-offset-4 decoration-2 decoration-green-600 py-2 rounded-lg px-2 md:px-5">
+                  <Link to="/contacto">Contacto</Link>
                 </li>
               </ul>
             </div>
