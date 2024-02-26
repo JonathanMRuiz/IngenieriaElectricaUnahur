@@ -1,9 +1,31 @@
-import React, { useState } from "react";
-import { Link } from "react-router-dom"; // Importa Link desde react-router-dom
+import React, { useState, useEffect, useRef } from "react";
+import { Link } from "react-router-dom";
 import Logo from "../source/logo.png";
+import { IoIosSettings } from "react-icons/io";
+import { auth } from "../firebase"; // Importa solo el módulo de autenticación
+import { signOut } from "firebase/auth";
 
-const Header = () => {
+const Header = ({ handleLogout }) => {
   const [isMobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const dropdownRef = useRef(null); // Ref para el menú desplegable
+
+  useEffect(() => {
+    // Verificar si el usuario ha iniciado sesión previamente al cargar la página
+    const storedIsLoggedIn = localStorage.getItem("isLoggedIn");
+    if (storedIsLoggedIn && storedIsLoggedIn === "true") {
+      setIsLoggedIn(true);
+    }
+
+    // Agregar event listener para cerrar el menú desplegable cuando se hace clic fuera de él
+    document.body.addEventListener("click", handleOutsideClick);
+
+    return () => {
+      // Limpiar event listener al desmontar el componente
+      document.body.removeEventListener("click", handleOutsideClick);
+    };
+  }, []);
 
   const toggleMobileMenu = () => {
     setMobileMenuOpen(!isMobileMenuOpen);
@@ -11,6 +33,24 @@ const Header = () => {
 
   const closeMobileMenu = () => {
     setMobileMenuOpen(false);
+  };
+
+  const handleOutsideClick = (event) => {
+    if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+      // Si el clic ocurre fuera del menú desplegable, ciérralo
+      setDropdownOpen(false);
+    }
+  };
+
+  const HandleLogout = async () => {
+    try {
+      await signOut(auth);
+      localStorage.removeItem("isLoggedIn");
+      setIsLoggedIn(false);
+      handleLogout();
+    } catch (error) {
+      console.error("Error al cerrar sesión:", error);
+    }
   };
 
   return (
@@ -23,7 +63,6 @@ const Header = () => {
               Ingeniería Eléctrica Unahur
             </h1>
           </div>
-          {/* Mobile Menu Icon */}
           <div className="md:hidden cursor-pointer" onClick={toggleMobileMenu}>
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -40,8 +79,6 @@ const Header = () => {
               />
             </svg>
           </div>
-
-          {/* Mobile Menu */}
           <div
             className={`${
               isMobileMenuOpen ? "flex flex-col" : "hidden"
@@ -49,17 +86,47 @@ const Header = () => {
           >
             <div className=" w-full md:w-auto" onClick={closeMobileMenu}>
               <ul className="flex flex-col md:flex-row justify-center items-center">
-                {/* Reemplaza los enlaces <a> con <Link> */}
                 <li className="hover:underline underline-offset-4 decoration-2 decoration-green-600 py-2 rounded-lg px-2 md:px-5">
                   <Link to="/">Inicio</Link>
                 </li>
-                {/* <li className="hover:underline underline-offset-4 decoration-2 decoration-green-600 py-2 rounded-lg px-2 md:px-5">
-                  <Link to="/taller">Taller de laboratorio</Link>
-                </li> */}
-
                 <li className="hover:underline underline-offset-4 decoration-2 decoration-green-600 py-2 rounded-lg px-2 md:px-5">
                   <Link to="/contacto">Contacto</Link>
                 </li>
+                {!isLoggedIn && (
+                  <li className="hover:underline underline-offset-4 decoration-2 decoration-green-600 py-2 rounded-lg px-2 md:px-5">
+                    <Link to="/login">Login</Link>
+                  </li>
+                )}
+                {isLoggedIn && (
+                  <li className="relative group" ref={dropdownRef}>
+                    <button
+                      onClick={() => setDropdownOpen(!dropdownOpen)}
+                      className="inline-flex items-center justify-center w-full rounded-md py-2 px-4 border border-transparent shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-green-600 focus:ring-white"
+                    >
+                      <IoIosSettings className="h-6 w-6 mr-1" />
+                    </button>
+                    {dropdownOpen && (
+                      <ul className="absolute right-0 mt-2 py-2 w-48 bg-white border border-gray-200 divide-y divide-gray-100 rounded-md shadow-lg ring-1 ring-green-600 ring-opacity-5">
+                        <li>
+                          <Link
+                            to="/subir-noticia"
+                            className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-center"
+                          >
+                            Subir Noticia
+                          </Link>
+                        </li>
+                        <li>
+                          <button
+                            onClick={HandleLogout}
+                            className="block w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-center"
+                          >
+                            Cerrar Sesión
+                          </button>
+                        </li>
+                      </ul>
+                    )}
+                  </li>
+                )}
               </ul>
             </div>
           </div>

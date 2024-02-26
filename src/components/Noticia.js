@@ -1,10 +1,10 @@
 import React from "react";
 import { Link } from "react-router-dom";
 
-const Noticia = ({ id, category, title, text_01, image_01 }) => {
-  // Recorta el texto_01 a un máximo de 256 caracteres
+const Noticia = ({ id, category, title, text_01, image_01, created_at }) => {
+  // Verificar si text_01 está definido antes de acceder a su propiedad length
   const truncatedText =
-    text_01.length > 256 ? text_01.slice(0, 256) + "..." : text_01;
+    text_01 && text_01.length > 256 ? text_01.slice(0, 256) + "..." : text_01;
 
   return (
     <>
@@ -26,7 +26,7 @@ const Noticia = ({ id, category, title, text_01, image_01 }) => {
               <p className="leading-relaxed mb-3">{truncatedText}</p>
               <div className="flex items-center flex-wrap ">
                 <span className="text-gray-400 mr-3 inline-flex items-center lg:ml-auto md:ml-0 ml-auto leading-none text-sm pr-3 py-1 ">
-                  created_at
+                  {created_at}
                 </span>
               </div>
             </div>

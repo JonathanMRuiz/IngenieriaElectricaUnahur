@@ -1,26 +1,27 @@
-import React, { useState, useEffect, useRef } from "react";
-import "./App.css";
-import Footer from "./components/Footer";
-import Spinner from "./components/Spinner";
+import React, { useState, useEffect } from "react";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import { auth } from "./firebase"; // Importa el módulo de autenticación de Firebase
+import Header from "./components/Header";
+import Spinner from "./components/Spinner";
 import LazyComponent from "./components/LazyComponents";
 import Home from "./pages/Home";
-import Taller from "./pages/Taller";
 import Contacto from "./pages/Contacto";
 import NoticiaCompleta from "./pages/NoticiaCompleta";
+import Login from "./components/Login";
+import SubirNoticia from "./pages/SubirNoticia";
+import Footer from "./components/Footer";
 
-// Importa tus componentes Lazy aquí
-const LazyHeader = React.lazy(() => import("./components/Header"));
-
-function App() {
+const App = () => {
   const [isLoading, setIsLoading] = useState(true);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
-    const loadingTimeout = setTimeout(() => {
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      setIsLoggedIn(!!user); // Establece el estado de isLoggedIn según si hay un usuario autenticado o no
       setIsLoading(false);
-    }, 2000);
+    });
 
-    return () => clearTimeout(loadingTimeout);
+    return () => unsubscribe(); // Limpia el listener del cambio de autenticación al desmontar el componente
   }, []);
 
   return (
@@ -33,20 +34,22 @@ function App() {
         ) : (
           <>
             <LazyComponent>
-              <React.Suspense fallback={<Spinner />}>
-                <LazyHeader />
-              </React.Suspense>
+              <Header isLoggedIn={isLoggedIn} />
             </LazyComponent>
 
             <LazyComponent>
-              <React.Suspense fallback={<Spinner />}>
-                <Routes>
-                  <Route exact path="/" element={<Home />} />
-                  {/* <Route path="/taller" element={<Taller />}></Route> */}
-                  <Route path="/contacto" element={<Contacto />}></Route>
-                  <Route path="/noticia/:id" element={<NoticiaCompleta />} />
-                </Routes>
-              </React.Suspense>
+              <Routes>
+                <Route exact path="/" element={<Home />} />
+                <Route path="/contacto" element={<Contacto />} />
+                <Route path="/noticia/:id" element={<NoticiaCompleta />} />
+                <Route path="/login" element={<Login />} />
+                {/* Ruta privada: solo accesible si el usuario está autenticado */}
+                {isLoggedIn ? (
+                  <Route path="/subir-noticia" element={<SubirNoticia />} />
+                ) : (
+                  <Route path="/subir-noticia" element={<Login />} />
+                )}
+              </Routes>
             </LazyComponent>
 
             <Footer />
@@ -55,6 +58,6 @@ function App() {
       </div>
     </Router>
   );
-}
+};
 
 export default App;
