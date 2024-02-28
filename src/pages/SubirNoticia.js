@@ -1,48 +1,79 @@
 import React, { useState } from "react";
-import { db, storage } from "../firebase"; // Importa la base de datos y el almacenamiento de Firebase
+import { db, storage } from "../firebase";
 import {
   collection,
   addDoc,
   updateDoc,
   serverTimestamp,
 } from "firebase/firestore";
-import { ref, uploadBytes, getDownloadURL } from "firebase/storage"; // Importa getDownloadURL
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import Spinner from "../components/Spinner";
+import Modal from "react-modal";
+
+// Estilos personalizados para el modal
+const customStyles = {
+  content: {
+    top: "50%",
+    left: "50%",
+    right: "auto",
+    bottom: "auto",
+    marginRight: "-50%",
+    transform: "translate(-50%, -50%)",
+    backgroundColor: "#FFFFFF",
+    borderRadius: "8px",
+    boxShadow: "0px 4px 16px rgba(0, 0, 0, 0.1)",
+    padding: "40px",
+    maxWidth: "400px",
+    width: "90%",
+    textAlign: "center",
+  },
+  overlay: {
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    zIndex: "1000",
+  },
+};
 
 const SubirNoticia = () => {
-  const [title, setTitle] = useState(""); // Estado para el campo title
-  const [text_01, setText01] = useState(""); // Estado para el campo text_01
-  const [text_02, setText02] = useState(""); // Estado para el campo text_02
-  const [text_03, setText03] = useState(""); // Estado para el campo text_03
-  const [image, setImage] = useState(null); // Estado para el archivo de imagen seleccionado
-  const [loading, setLoading] = useState(false); // Estado para controlar la carga
+  const [title, setTitle] = useState("");
+  const [text_01, setText01] = useState("");
+  const [text_02, setText02] = useState("");
+  const [text_03, setText03] = useState("");
+  const [image, setImage] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [modalIsOpen, setModalIsOpen] = useState(false);
+  const [modalMessage, setModalMessage] = useState("");
 
-  // Manejador para el envío del formulario
+  const openModal = (message) => {
+    setModalIsOpen(true);
+    setModalMessage(message);
+  };
+
+  const closeModal = () => {
+    setModalIsOpen(false);
+    setModalMessage("");
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Verifica si el campo title está vacío
     if (!title) {
-      alert("Por favor, ingresa un título para la noticia");
+      openModal("Por favor, ingresa un título para la noticia");
       return;
     }
 
-    // Verifica si el campo text_01 está vacío
     if (!text_01) {
-      alert("Por favor, ingresa el texto 01 de la noticia");
+      openModal("Por favor, ingresa el texto 01 de la noticia");
       return;
     }
 
-    // Verifica si no se ha seleccionado una imagen
     if (!image) {
-      alert("Por favor, selecciona una imagen para la noticia");
+      openModal("Por favor, selecciona una imagen para la noticia");
       return;
     }
 
     try {
-      setLoading(true); // Activa el estado de carga
+      setLoading(true);
 
-      // Guarda el título en la base de datos
       const noticiasCollectionRef = collection(db, "noticias");
       const document = await addDoc(noticiasCollectionRef, {
         title,
@@ -50,20 +81,17 @@ const SubirNoticia = () => {
         text_02,
         text_03,
         creator: "Jonathan",
-      }); // Agrega los campos title, text_01, text_02 y text_03 al documento en la colección "noticias"
+      });
 
-      // Subir la imagen al almacenamiento de Firebase
       const storageRef = ref(storage, `images/${image.name}`);
       await uploadBytes(storageRef, image);
 
-      // Obtener el enlace de descarga de la imagen
       const imageURL = await getDownloadURL(storageRef);
 
-      // Actualizar el documento de "noticias" con el enlace de la imagen
       await updateDoc(document, { imageURL });
 
-      alert("Noticia subida correctamente");
-      // Limpia los campos después de enviar
+      openModal("Noticia subida correctamente");
+
       setTitle("");
       setText01("");
       setText02("");
@@ -71,13 +99,12 @@ const SubirNoticia = () => {
       setImage(null);
     } catch (error) {
       console.error("Error al subir la noticia:", error);
-      alert("Error al subir la noticia");
+      openModal("Error al subir la noticia");
     } finally {
-      setLoading(false); // Desactiva el estado de carga
+      setLoading(false);
     }
   };
 
-  // Manejador para cambiar el archivo de imagen seleccionado
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     setImage(file);
@@ -180,6 +207,21 @@ const SubirNoticia = () => {
           )}
         </button>
       </form>
+      {/* Modal */}
+      <Modal
+        isOpen={modalIsOpen}
+        onRequestClose={closeModal}
+        style={customStyles}
+        contentLabel="Alerta"
+      >
+        <h2 className="text-2xl font-bold mb-4">{modalMessage}</h2>
+        <button
+          onClick={closeModal}
+          className="text-white bg-green-500 border-0 py-2 px-6 focus:outline-none hover:bg-green-600 rounded-lg text-lg"
+        >
+          Cerrar
+        </button>
+      </Modal>
     </div>
   );
 };
