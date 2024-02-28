@@ -1,12 +1,27 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Noticia from "./Noticia";
 import useNoticias from "../hooks/useNoticias";
 import Spinner from "./Spinner";
 
 const GridNoticias = () => {
   const { noticias, loading } = useNoticias();
+  const [cachedNoticias, setCachedNoticias] = useState([]);
 
-  if (loading) {
+  useEffect(() => {
+    const cachedData = localStorage.getItem("cachedNoticias");
+    if (cachedData) {
+      setCachedNoticias(JSON.parse(cachedData));
+    }
+  }, []);
+
+  useEffect(() => {
+    if (noticias.length > 0 && !loading) {
+      setCachedNoticias(noticias);
+      localStorage.setItem("cachedNoticias", JSON.stringify(noticias));
+    }
+  }, [noticias, loading]);
+
+  if (loading && cachedNoticias.length === 0) {
     return (
       <div className="flex justify-center items-center">
         <Spinner />
@@ -21,13 +36,13 @@ const GridNoticias = () => {
           Noticias
           <div className="h-1 w-20 bg-green-500 rounded"></div>
         </h1>
-        {noticias.length === 0 ? (
+        {cachedNoticias.length === 0 ? (
           <p className="text-center text-gray-600">
             No hay noticias disponibles para mostrar
           </p>
         ) : (
           <div className="flex flex-wrap -m-4">
-            {noticias.map((noticia) => (
+            {cachedNoticias.map((noticia) => (
               <Noticia
                 key={noticia.id}
                 id={noticia.id}
